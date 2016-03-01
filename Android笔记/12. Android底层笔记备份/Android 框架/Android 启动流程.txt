@@ -1,0 +1,38 @@
+
+Android 启动流程:
+
+1.Linux内核
+	通过bootloader(系统加载器) 加载Linux内核, Linux内核与普通的Linux启动一样 ,先初始化内核,然后调用init进程
+
+2.Android init
+	对各种设备进行初始化,运行Android Framework 所需的各种Daemon. Context Manager. Media Server. Zygote等.
+
+	init进程执行的 Daemon (守护进程)
+		1.USB Daemon(usbd): 					管理USB连接
+		2.Android Debug Brideg Daemon (adbd): 	adb 连接管理
+		3.Debugger Daemon (debuggerd) : 		启动debugger系统
+		4.Radio Interface Layer Daemon (rild):	管理无线通讯连接
+	
+3.Context Manager
+	ContextManager 是一个管理Android系统服务的重要进程.系统服务是组成AndroidFramework的重要组件,提供从相机;音频;视频处理到各种应用程序制作需要的重要API.
+	
+	它提供运行于Android内的各种系统服务信息.应用程序或Framework内部模块在调用系统服务时,需要先向服务器申请,而后通过Binder IPC (Interprocess communication) 调用系统服务
+	
+	在系统启动时,所有系统服务都要把各自的handle信息注册到Context Manager,此时,Binder IPC 用来进行进程间通讯.
+	
+4.Media Server
+	Media Server用于运行基于C/C++的本地系统服务,如:Audio Flinger(负责音频输出); Camera等.
+	
+5.Zygote
+	Zygote进程用于缩短Android应用程序加载的事件,每当执行Java应用程序时,Zygote就会派生出一个子进程来执行应用程序,该子进程就是用来执行Java应用程序的虚拟机.
+
+6.System Server
+	System Server 是Android系统的一个核心进程,他是由Zygote 进程创建的,在Android启动过程中谓语Zygote之后,在System Server(管理应用程序的声明周期)	;Location Manager Server(提供终端地理位置信息) 等.
+	
+	为了将运行在System Server 中的Java系统服务提供给Android 应用程序或Framework内部模块调用,需要先将他们注册到Context Manager中.
+	
+	在通过Binder IPC将Java系统服务注册到基于C语言的服务管理器时,需要使用JNI(Java Native Interface) 本地编程接口.JNI允许Java代码与其他编程语言(如C'C++;汇编) 编写的应用程序和库进行交互操作.
+	
+
+	
+以上就是对Android启动过程以及Framework初始化的简单介绍.
